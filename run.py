@@ -1,5 +1,5 @@
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters, ConversationHandler
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, ConversationHandler, Filters
 
 import random
 import time
@@ -47,7 +47,62 @@ def user_input(update: Update, context: CallbackContext) -> int:
     update.message.reply_text("Please provide more details on how you want to randomize:")
     return INPUT_AMOUNT
 
-# Rest of the code remains the same...
+def custom_input(update: Update, context: CallbackContext) -> None:
+    input_type = context.user_data.get('input_type', 'UNKNOWN')
+    
+    if input_type == 'USER INPUT':
+        # Handle custom user input here
+        custom_input = update.message.text
+        random_values = generate_random_custom_input(custom_input, 20)
+        update.message.reply_text('\n'.join(random_values))
+    
+    context.user_data.pop('selected_button', None)
+    context.user_data.pop('input_type', None)
+    return ConversationHandler.END
+
+def generate_random_names(num_names):
+    # Generate random 4-5 character names
+    names = ["".join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ", k=random.randint(4, 5))) for _ in range(num_names)]
+    return names
+
+def generate_random_times(num_times):
+    current_time = int(time.time())
+    times = [time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(random.randint(current_time - 300, current_time))) for _ in range(num_times)]
+    return times
+
+def generate_random_refs(num_refs):
+    # Generate random REF# values
+    refs = [f"REF{i}#{random.randint(100, 999)}" for i in range(1, num_refs + 1)]
+    return refs
+
+def generate_random_custom_input(custom_input, num_values):
+    # Implement your logic here based on the custom input
+    # Generate random values based on the provided custom input
+    # Return the generated random values as a list
+    pass
+
+def main():
+    updater = Updater(TOKEN, use_context=True)
+    dispatcher = updater.dispatcher
+
+    conversation_handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
+        states={
+            CHOOSING: [
+                CallbackQueryHandler(button_handler),
+                MessageHandler(Filters.text & ~Filters.command, user_input),
+            ],
+            INPUT_AMOUNT: [
+                MessageHandler(Filters.text & ~Filters.command, custom_input),
+            ]
+        },
+        fallbacks=[],
+    )
+    
+    dispatcher.add_handler(conversation_handler)
+
+    updater.start_polling()
+    updater.idle()
 
 if __name__ == '__main__':
     main()
