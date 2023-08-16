@@ -3,7 +3,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Conve
 import random
 import time
 
-TOKEN = 'YOUR_TOKEN'
+TOKEN = '6324154556:AAHm6c1F-i8lYcT8t4PLETxUbnmyZkZatWk'
 
 # States for the conversation handler
 CHOOSING, INPUT_AMOUNT = range(2)
